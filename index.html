@@ -3,129 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GymManager - Dashboard</title>
+    <title>GymManager Pro - Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --ptit-red: #ce1212; }
-        body { background-color: #f8f9fa; font-family: 'Segoe UI', sans-serif; }
-        .navbar { background-color: var(--ptit-red); }
-        .card { border: none; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .card-header { background: #fff; border-bottom: 1px solid #eee; font-weight: bold; color: #333; }
-        .table-container { max-height: 300px; overflow-y: auto; }
-        .btn-ptit { border: 2px solid var(--ptit-red); color: var(--ptit-red); font-weight: 600; transition: 0.3s; }
+        body { background-color: #f4f7f6; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background-color: var(--ptit-red); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        .card-header { background: #fff; border-bottom: 1px solid #eee; font-weight: bold; color: #333; padding: 12px 20px; }
+        .table-scroll { height: 250px; overflow-y: auto; }
+        .btn-ptit { border: 2px solid var(--ptit-red); color: var(--ptit-red); font-weight: 600; transition: 0.3s; background: transparent; }
         .btn-ptit:hover { background: var(--ptit-red); color: #fff; }
+        thead { sticky-top: 0; position: sticky; background: #f8f9fa; z-index: 1; }
     </style>
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark mb-4">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="#"><i class="bi bi-cpu"></i> GYMMANAGER</a>
-        <span class="navbar-text text-white">Project: Database Management System</span>
+        <a class="navbar-brand fw-bold" href="#"><i class="bi bi-database-check"></i> GYMMANAGER</a>
+        <span class="navbar-text text-white d-none d-md-block">Project: Database Management System - PTIT</span>
     </div>
 </nav>
 
 <div class="container">
-    <h3 class="text-center mb-4 fw-bold">KẾT QUẢ TRUY VẤN HỆ THỐNG</h3>
+    <h3 class="text-center mb-4 fw-bold text-uppercase">Kết Quả Truy Vấn Hệ Thống</h3>
 
     <div class="row">
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">📋 Query 1: Danh sách Hội viên & Gói tập</div>
+            <div class="card shadow-sm">
+                <div class="card-header"><i class="bi bi-people-fill text-primary"></i> Query 1: Hội viên & Gói tập</div>
                 <div class="card-body p-0">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light"><tr><th>Họ Tên</th><th>Gói Tập</th></tr></thead>
-                        <tbody>
-                            <tr><td>Nguyễn Văn An</td><td>Basic</td></tr>
-                            <tr><td>Lê Thị Bảo</td><td>Silver</td></tr>
-                            <tr><td>Trần Văn Cảnh</td><td>Gold</td></tr>
-                            <tr><td>Hoàng Thị Dung</td><td>Basic</td></tr>
-                        </tbody>
-                    </table>
+                    <div class="table-scroll">
+                        <table class="table table-hover mb-0">
+                            <thead><tr><th>Họ Tên</th><th>Gói Tập</th></tr></thead>
+                            <tbody>
+                                <tr><td>Nguyễn Văn An</td><td>Basic</td></tr>
+                                <tr><td>Lê Thị Bảo</td><td>Silver</td></tr>
+                                <tr><td>Trần Văn Cảnh</td><td>Gold</td></tr>
+                                <tr><td>Hoàng Thị Dung</td><td>Basic</td></tr>
+                                <tr><td>Phạm Minh Nam</td><td>Silver</td></tr>
+                                <tr><td>Vũ Thị Phương</td><td>Basic</td></tr>
+                                <tr><td>Đặng Văn Giang</td><td>Gold</td></tr>
+                                <tr><td>Bùi Thị Hạnh</td><td>Silver</td></tr>
+                                <tr><td>Đỗ Văn Long</td><td>Basic</td></tr>
+                                <tr><td>Ngô Thị Kiều</td><td>Gold</td></tr>
+                                <tr><td>Dương Văn Lợi</td><td>Silver</td></tr>
+                                <tr><td>Lý Thị Mai</td><td>Basic</td></tr>
+                                <tr><td>Phan Văn Nam</td><td>Silver</td></tr>
+                                <tr><td>Trương Thị Oanh</td><td>Gold</td></tr>
+                                <tr><td>Trịnh Văn Phát</td><td>Basic</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
+
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">📅 Query 4: Chi tiết lịch tập luyện</div>
+            <div class="card shadow-sm">
+                <div class="card-header"><i class="bi bi-cash-stack text-success"></i> Query 2: Nhật ký Thanh toán</div>
                 <div class="card-body p-0">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light"><tr><th>Hội Viên</th><th>HLV</th><th>Bài Tập</th></tr></thead>
-                        <tbody>
-                            <tr><td>An</td><td>Đức</td><td>Squat</td></tr>
-                            <tr><td>Bảo</td><td>Thảo</td><td>Yoga</td></tr>
-                            <tr><td>Cảnh</td><td>Hùng</td><td>Bench Press</td></tr>
-                        </tbody>
-                    </table>
+                    <div class="table-scroll">
+                        <table class="table table-hover mb-0">
+                            <thead><tr><th>ID</th><th>Số tiền (VNĐ)</th><th>Ngày</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>500.000</td><td>01/03/2026</td></tr>
+                                <tr><td>2</td><td>200.000</td><td>01/03/2026</td></tr>
+                                <tr><td>3</td><td>1.200.000</td><td>02/03/2026</td></tr>
+                                <tr><td>4</td><td>3.000.000</td><td>02/03/2026</td></tr>
+                                <tr><td>5</td><td>150.000</td><td>03/03/2026</td></tr>
+                                <tr><td>6</td><td>500.000</td><td>03/03/2026</td></tr>
+                                <tr><td>7</td><td>1.200.000</td><td>04/03/2026</td></tr>
+                                <tr><td>10</td><td>3.000.000</td><td>06/03/2026</td></tr>
+                                <tr><td>15</td><td>3.000.000</td><td>11/03/2026</td></tr>
+                                <tr><td>20</td><td>500.000</td><td>16/03/2026</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">💰 Query 2 & 3: Thanh toán > 1M</div>
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header"><i class="bi bi-graph-up-arrow text-danger"></i> Query 3: Danh sách các tài khoản có tổng chi tiêu ≥ 1.2M</div>
                 <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between"><span>Tài khoản 3</span> <b>3.000.000</b></li>
-                        <li class="list-group-item d-flex justify-content-between"><span>Tài khoản 7</span> <b>3.000.000</b></li>
-                        <li class="list-group-item d-flex justify-content-between"><span>Tài khoản 10</span> <b>3.000.000</b></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-5">
-            <div class="card">
-                <div class="card-header">📊 Query 5: Phân bổ Gói tập</div>
-                <div class="card-body"><canvas id="chart5" height="150"></canvas></div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-dark text-white text-center h-100">
-                <div class="card-body d-flex flex-column justify-content-center">
-                    <small>TOP TRAINER (Query 6)</small>
-                    <h4 class="fw-bold mt-2">Nguyễn Hoàng Đức</h4>
-                    <span class="badge bg-danger">3 Buổi/Tuần</span>
+                    <div class="row text-center">
+                        <div class="col-md-2 mb-2"><div class="p-2 border rounded bg-white">ID 3<br><b>3.0M</b></div></div>
+                        <div class="col-md-2 mb-2"><div class="p-2 border rounded bg-white">ID 7<br><b>1.2M</b></div></div>
+                        <div class="col-md-2 mb-2"><div class="p-2 border rounded bg-white">ID 10<br><b>3.0M</b></div></div>
+                        <div class="col-md-2 mb-2"><div class="p-2 border rounded bg-white">ID 12<br><b>1.2M</b></div></div>
+                        <div class="col-md-2 mb-2"><div class="p-2 border rounded bg-white">ID 14<br><b>3.0M</b></div></div>
+                        <div class="col-md-2 mb-2"><div class="p-2 border rounded bg-white">ID 15<br><b>3.0M</b></div></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row mt-4 mb-5 g-3">
-        <div class="col-md-3">
-            <a href="https://github.com/CUHPVN/GymManager_DataBase/blob/main/ERD.jpg" target="_blank" class="btn btn-ptit w-100 py-3">
-                <i class="bi bi-diagram-3"></i> Mở Sơ đồ ER
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header"><i class="bi bi-calendar3 text-warning"></i> Query 4: Chi tiết lịch tập luyện đầy đủ</div>
+                <div class="card-body p-0">
+                    <div class="table-scroll" style="height: 300px;">
+                        <table class="table table-hover mb-0">
+                            <thead><tr><th>Hội Viên</th><th>HLV Hướng Dẫn</th><th>Bài Tập</th><th>Thời gian</th></tr></thead>
+                            <tbody>
+                                <tr><td>Nguyễn Văn An</td><td>Hoàng Đức</td><td>Squat</td><td>24/03 08:00</td></tr>
+                                <tr><td>Lê Thị Bảo</td><td>Thu Thảo</td><td>Yoga Flow</td><td>24/03 09:30</td></tr>
+                                <tr><td>Trần Văn Cảnh</td><td>Minh Hùng</td><td>Bench Press</td><td>24/03 14:00</td></tr>
+                                <tr><td>Hoàng Thị Dung</td><td>Ngọc Lan</td><td>Chạy bộ</td><td>25/03 08:00</td></tr>
+                                <tr><td>Phạm Minh Nam</td><td>Quốc Trung</td><td>Deadlift</td><td>25/03 10:00</td></tr>
+                                <tr><td>Vũ Thị Phương</td><td>Hoàng Đức</td><td>Plank</td><td>26/03 07:00</td></tr>
+                                <tr><td>Đặng Văn Giang</td><td>Thu Thảo</td><td>HIIT Cardio</td><td>26/03 15:30</td></tr>
+                                <tr><td>Bùi Thị Hạnh</td><td>Minh Hùng</td><td>Biceps Curl</td><td>27/03 08:30</td></tr>
+                                <tr><td>Đỗ Văn Long</td><td>Ngọc Lan</td><td>Lat Pulldown</td><td>27/03 16:00</td></tr>
+                                <tr><td>Ngô Thị Kiều</td><td>Quốc Trung</td><td>Đạp xe</td><td>28/03 09:00</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header"><i class="bi bi-pie-chart-fill text-info"></i> Query 5: Phân bổ loại thẻ Hội viên</div>
+                <div class="card-body d-flex align-items-center">
+                    <canvas id="chart5" height="140"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-dark text-white text-center h-100 shadow border-0">
+                <div class="card-body d-flex flex-column justify-content-center">
+                    <i class="bi bi-trophy-fill text-warning display-5 mb-2"></i>
+                    <p class="small text-uppercase mb-1">Top Trainer (Q6)</p>
+                    <h5 class="fw-bold">Nguyễn Hoàng Đức </h5>
+                    <div class="mt-2">
+                        <span class="badge bg-danger px-3 py-2">3 Buổi/Tuần</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-2 mb-5 g-3 text-center">
+        <div class="col-md-4">
+            <a href="https://github.com/CUHPVN/GymManager_DataBase/blob/main/ERD.jpg" target="_blank" class="btn btn-ptit w-100 py-3 shadow-sm">
+                <i class="bi bi-diagram-3-fill"></i> Mở Sơ đồ ER
             </a>
         </div>
-        <div class="col-md-3">
-            <a href="https://www.canva.com/design/DAHEvkovXHk/3qnh99yxEuLy_M2f_m_6nA/edit?fbclid=IwY2xjawQwpPVleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAwzNTA2ODU1MzE3MjgAAR5BOgQAz3GipZaGt8Dk9M_0fpDVs-m42Tag1uMnmGhX4SojPr58Nr8fNRs4Kw_aem_KLPZqkcec2j96HTbxzcIMw" target="_blank" class="btn btn-ptit w-100 py-3">
-                <i class="bi bi-file-earmark-slides"></i> Mở Slide
+        <div class="col-md-4">
+            <a href="https://www.canva.com/design/DAHEvkovXHk/3qnh99yxEuLy_M2f_m_6nA/edit" target="_blank" class="btn btn-ptit w-100 py-3 shadow-sm">
+                <i class="bi bi-file-earmark-slides-fill"></i> Mở Slide Thuyết Trình
             </a>
         </div>
-        <div class="col-md-3">
-            <a href="https://github.com/CUHPVN/GymManager_DataBase" target="_blank" class="btn btn-ptit w-100 py-3">
-                <i class="bi bi-github"></i> Xem Source Code
+        <div class="col-md-4">
+            <a href="https://github.com/CUHPVN/GymManager_DataBase" target="_blank" class="btn btn-ptit w-100 py-3 shadow-sm">
+                <i class="bi bi-github"></i> Xem Source Code SQL
             </a>
         </div>
-        <!-- <div class="col-md-3">
-            <a href="URL_VIDEO_CUA_BAN" target="_blank" class="btn btn-danger w-100 py-3 text-white">
-                <i class="bi bi-play-btn"></i> Xem Video Thuyết Trình
-            </a>
-        </div> -->
     </div>
 </div>
 
 <script>
+    // Dữ liệu thống kê: Basic=6, Silver=5, Gold=4
     new Chart(document.getElementById('chart5'), {
         type: 'doughnut',
         data: {
             labels: ['Basic', 'Silver', 'Gold', 'Diamond'],
-            datasets: [{ data: [5, 4, 3, 3], backgroundColor: ['#6c757d', '#17a2b8', '#ffc107', '#dc3545'] }]
+            datasets: [{ 
+                data: [6, 5, 4, 0], 
+                backgroundColor: ['#6c757d', '#17a2b8', '#ffc107', '#dc3545'],
+                borderWidth: 0
+            }]
         },
-        options: { plugins: { legend: { position: 'right' } } }
+        options: { 
+            plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 10 } } } },
+            cutout: '70%'
+        }
     });
 </script>
 </body>
