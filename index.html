@@ -3,195 +3,281 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GymManager Pro - Dashboard</title>
+    <title>GymManager Pro - PTIT Final Version</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --ptit-red: #ce1212; }
         body { background-color: #f4f7f6; font-family: 'Segoe UI', sans-serif; }
-        .navbar { background-color: var(--ptit-red); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 24px; }
-        .card-header { background: #fff; border-bottom: 1px solid #eee; font-weight: bold; color: #333; padding: 12px 20px; }
-        .table-scroll { height: 250px; overflow-y: auto; }
-        .btn-ptit { border: 2px solid var(--ptit-red); color: var(--ptit-red); font-weight: 600; transition: 0.3s; background: transparent; }
-        .btn-ptit:hover { background: var(--ptit-red); color: #fff; }
-        thead { sticky-top: 0; position: sticky; background: #f8f9fa; z-index: 1; }
+        .navbar { background-color: var(--ptit-red); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .sidebar { background: white; min-height: 100vh; border-right: 1px solid #ddd; position: sticky; top: 0; }
+        .nav-link { color: #333; font-weight: 500; padding: 12px 20px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: 0.2s; }
+        .nav-link:hover { background: #fff1f1; color: var(--ptit-red); }
+        .nav-link.active { background: var(--ptit-red) !important; color: white !important; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .table-container { height: 65vh; overflow-y: auto; }
+        .btn-ptit { background: var(--ptit-red); color: white; border: none; font-weight: 600; }
+        th.sortable { cursor: pointer; transition: 0.2s; white-space: nowrap; background: #f8f9fa; }
+        th.sortable:hover { background: #eee !important; color: var(--ptit-red); }
+        .active-sort { color: var(--ptit-red); text-decoration: underline; }
+        thead { position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #dee2e6; }
+        .query-card { background: white; border-left: 5px solid var(--ptit-red); padding: 15px; height: 100%; }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark mb-4">
-    <div class="container">
+<nav class="navbar navbar-dark shadow-sm sticky-top">
+    <div class="container-fluid">
         <a class="navbar-brand fw-bold" href="#"><i class="bi bi-database-check"></i> GYMMANAGER</a>
-        <span class="navbar-text text-white d-none d-md-block">Project: Database Management System - PTIT</span>
+        <div class="text-white small d-none d-md-block"></div>
     </div>
 </nav>
 
-<div class="container">
-    <h3 class="text-center mb-4 fw-bold text-uppercase">Kết Quả Truy Vấn Hệ Thống</h3>
-
+<div class="container-fluid">
     <div class="row">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header"><i class="bi bi-people-fill text-primary"></i> Query 1: Hội viên & Gói tập</div>
-                <div class="card-body p-0">
-                    <div class="table-scroll">
-                        <table class="table table-hover mb-0">
-                            <thead><tr><th>Họ Tên</th><th>Gói Tập</th></tr></thead>
-                            <tbody>
-                                <tr><td>Nguyễn Văn An</td><td>Basic</td></tr>
-                                <tr><td>Lê Thị Bảo</td><td>Silver</td></tr>
-                                <tr><td>Trần Văn Cảnh</td><td>Gold</td></tr>
-                                <tr><td>Hoàng Thị Dung</td><td>Basic</td></tr>
-                                <tr><td>Phạm Minh Nam</td><td>Silver</td></tr>
-                                <tr><td>Vũ Thị Phương</td><td>Basic</td></tr>
-                                <tr><td>Đặng Văn Giang</td><td>Gold</td></tr>
-                                <tr><td>Bùi Thị Hạnh</td><td>Silver</td></tr>
-                                <tr><td>Đỗ Văn Long</td><td>Basic</td></tr>
-                                <tr><td>Ngô Thị Kiều</td><td>Gold</td></tr>
-                                <tr><td>Dương Văn Lợi</td><td>Silver</td></tr>
-                                <tr><td>Lý Thị Mai</td><td>Basic</td></tr>
-                                <tr><td>Phan Văn Nam</td><td>Silver</td></tr>
-                                <tr><td>Trương Thị Oanh</td><td>Gold</td></tr>
-                                <tr><td>Trịnh Văn Phát</td><td>Basic</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        <div class="col-md-2 p-0 sidebar shadow-sm">
+            <div class="list-group list-group-flush">
+                <div class="p-3 fw-bold text-muted small bg-light text-uppercase">Quản lý bảng</div>
+                <a class="nav-link active" onclick="switchTable('member', this)"><i class="bi bi-people"></i> Hội viên</a>
+                <a class="nav-link" onclick="switchTable('trainer', this)"><i class="bi bi-person-badge"></i> Huấn luyện viên</a>
+                <a class="nav-link" onclick="switchTable('account', this)"><i class="bi bi-key"></i> Tài khoản</a>
+                <a class="nav-link" onclick="switchTable('payment', this)"><i class="bi bi-credit-card"></i> Thanh toán</a>
+                <a class="nav-link" onclick="switchTable('membership_type', this)"><i class="bi bi-tags"></i> Gói tập</a>
+                <a class="nav-link" onclick="switchTable('work_out', this)"><i class="bi bi-bicycle"></i> Bài tập</a>
+                <a class="nav-link" onclick="switchTable('work_out_plan', this)"><i class="bi bi-calendar-event"></i> Lịch tập</a>
+                <div class="p-3 fw-bold text-muted small bg-light text-uppercase">Báo cáo tổng hợp</div>
+                <a class="nav-link text-danger fw-bold" onclick="switchTable('reports', this)"><i class="bi bi-file-earmark-bar-graph"></i>TRUY VẤN</a>
             </div>
         </div>
 
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header"><i class="bi bi-cash-stack text-success"></i> Query 2: Nhật ký Thanh toán</div>
-                <div class="card-body p-0">
-                    <div class="table-scroll">
-                        <table class="table table-hover mb-0">
-                            <thead><tr><th>ID</th><th>Số tiền (VNĐ)</th><th>Ngày</th></tr></thead>
-                            <tbody>
-                                <tr><td>1</td><td>500.000</td><td>01/03/2026</td></tr>
-                                <tr><td>2</td><td>200.000</td><td>01/03/2026</td></tr>
-                                <tr><td>3</td><td>1.200.000</td><td>02/03/2026</td></tr>
-                                <tr><td>4</td><td>3.000.000</td><td>02/03/2026</td></tr>
-                                <tr><td>5</td><td>150.000</td><td>03/03/2026</td></tr>
-                                <tr><td>6</td><td>500.000</td><td>03/03/2026</td></tr>
-                                <tr><td>7</td><td>1.200.000</td><td>04/03/2026</td></tr>
-                                <tr><td>10</td><td>3.000.000</td><td>06/03/2026</td></tr>
-                                <tr><td>15</td><td>3.000.000</td><td>11/03/2026</td></tr>
-                                <tr><td>20</td><td>500.000</td><td>16/03/2026</td></tr>
-                            </tbody>
-                        </table>
+        <div class="col-md-10 p-4">
+            <div id="crud-section">
+                <div class="card shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center bg-white py-3">
+                        <h5 class="mb-0 fw-bold text-uppercase" id="tableTitle">Bảng: Hội viên</h5>
+                        <button class="btn btn-ptit btn-sm" onclick="openCreateModal()"><i class="bi bi-plus-circle"></i> Thêm mới</button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-container">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead id="tableHead"></thead>
+                                <tbody id="tableBody"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header"><i class="bi bi-graph-up-arrow text-danger"></i> Query 3: Danh sách các tài khoản có tổng chi tiêu ≥ 1.2M</div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-md-2 mb-2"><div class="p-2 border rounded bg-white">ID 3<br><b>3.0M</b></div></div>
-                        <div class="col-md-2 mb-2"><div class="p-2 border rounded bg-white">ID 7<br><b>1.2M</b></div></div>
-                        <div class="col-md-2 mb-2"><div class="p-2 border rounded bg-white">ID 10<br><b>3.0M</b></div></div>
-                        <div class="col-md-2 mb-2"><div class="p-2 border rounded bg-white">ID 12<br><b>1.2M</b></div></div>
-                        <div class="col-md-2 mb-2"><div class="p-2 border rounded bg-white">ID 14<br><b>3.0M</b></div></div>
-                        <div class="col-md-2 mb-2"><div class="p-2 border rounded bg-white">ID 15<br><b>3.0M</b></div></div>
+            <div id="reports-section" style="display: none;">
+                <h4 class="fw-bold mb-4 text-uppercase text-danger"><i class="bi bi-clipboard-data"></i> Báo cáo thống kê (6 Queries)</h4>
+                <div class="row g-3">
+                    <div class="col-md-6"><div class="card query-card"><h6>Q1: Member & Package</h6><div id="q1-res" class="small mt-2"></div></div></div>
+                    <div class="col-md-6"><div class="card query-card"><h6>Q2: Nhật ký thanh toán (Recent)</h6><div id="q2-res" class="small mt-2"></div></div></div>
+                    <div class="col-md-4"><div class="card query-card text-center"><h6>Q3: Tài khoản chi trên 1M</h6><h3 id="q3-res" class="text-danger fw-bold mt-2">-</h3></div></div>
+                    <div class="col-md-5"><div class="card query-card"><h6>Q5: Phân bổ Gói hội viên</h6><canvas id="chartQ5" height="150"></canvas></div></div>
+                    <div class="col-md-3">
+                        <div class="card bg-dark text-white p-4 text-center h-100 shadow">
+                            <i class="bi bi-award text-warning display-4"></i>
+                            <h6 class="mt-3">HLV TIÊU BIỂU (Q6)</h6>
+                            <h4 id="q6-res" class="text-warning fw-bold">-</h4>
+                        </div>
                     </div>
+                    <div class="col-12"><div class="card query-card"><h6>Q4: Chi tiết Lịch tập (Join Member, Trainer, Workout)</h6><div id="q4-res" class="small table-responsive mt-2"></div></div></div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header"><i class="bi bi-calendar3 text-warning"></i> Query 4: Chi tiết lịch tập luyện đầy đủ</div>
-                <div class="card-body p-0">
-                    <div class="table-scroll" style="height: 300px;">
-                        <table class="table table-hover mb-0">
-                            <thead><tr><th>Hội Viên</th><th>HLV Hướng Dẫn</th><th>Bài Tập</th><th>Thời gian</th></tr></thead>
-                            <tbody>
-                                <tr><td>Nguyễn Văn An</td><td>Hoàng Đức</td><td>Squat</td><td>24/03 08:00</td></tr>
-                                <tr><td>Lê Thị Bảo</td><td>Thu Thảo</td><td>Yoga Flow</td><td>24/03 09:30</td></tr>
-                                <tr><td>Trần Văn Cảnh</td><td>Minh Hùng</td><td>Bench Press</td><td>24/03 14:00</td></tr>
-                                <tr><td>Hoàng Thị Dung</td><td>Ngọc Lan</td><td>Chạy bộ</td><td>25/03 08:00</td></tr>
-                                <tr><td>Phạm Minh Nam</td><td>Quốc Trung</td><td>Deadlift</td><td>25/03 10:00</td></tr>
-                                <tr><td>Vũ Thị Phương</td><td>Hoàng Đức</td><td>Plank</td><td>26/03 07:00</td></tr>
-                                <tr><td>Đặng Văn Giang</td><td>Thu Thảo</td><td>HIIT Cardio</td><td>26/03 15:30</td></tr>
-                                <tr><td>Bùi Thị Hạnh</td><td>Minh Hùng</td><td>Biceps Curl</td><td>27/03 08:30</td></tr>
-                                <tr><td>Đỗ Văn Long</td><td>Ngọc Lan</td><td>Lat Pulldown</td><td>27/03 16:00</td></tr>
-                                <tr><td>Ngô Thị Kiều</td><td>Quốc Trung</td><td>Đạp xe</td><td>28/03 09:00</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card h-100 shadow-sm">
-                <div class="card-header"><i class="bi bi-pie-chart-fill text-info"></i> Query 5: Phân bổ loại thẻ Hội viên</div>
-                <div class="card-body d-flex align-items-center">
-                    <canvas id="chart5" height="140"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-dark text-white text-center h-100 shadow border-0">
-                <div class="card-body d-flex flex-column justify-content-center">
-                    <i class="bi bi-trophy-fill text-warning display-5 mb-2"></i>
-                    <p class="small text-uppercase mb-1">Top Trainer (Q6)</p>
-                    <h5 class="fw-bold">Nguyễn Hoàng Đức </h5>
-                    <div class="mt-2">
-                        <span class="badge bg-danger px-3 py-2">3 Buổi/Tuần</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mt-2 mb-5 g-3 text-center">
-        <div class="col-md-4">
-            <a href="https://github.com/CUHPVN/GymManager_DataBase/blob/main/ERD.jpg" target="_blank" class="btn btn-ptit w-100 py-3 shadow-sm">
-                <i class="bi bi-diagram-3-fill"></i> Mở Sơ đồ ER
-            </a>
-        </div>
-        <div class="col-md-4">
-            <a href="https://www.canva.com/design/DAHEvkovXHk/3qnh99yxEuLy_M2f_m_6nA/edit" target="_blank" class="btn btn-ptit w-100 py-3 shadow-sm">
-                <i class="bi bi-file-earmark-slides-fill"></i> Mở Slide Thuyết Trình
-            </a>
-        </div>
-        <div class="col-md-4">
-            <a href="https://github.com/CUHPVN/GymManager_DataBase" target="_blank" class="btn btn-ptit w-100 py-3 shadow-sm">
-                <i class="bi bi-github"></i> Xem Source Code SQL
-            </a>
         </div>
     </div>
 </div>
 
+<div class="modal fade" id="crudModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title fw-bold">Thông tin dữ liệu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4" id="modalInputs"></div>
+            <div class="modal-footer bg-light border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-ptit" onclick="handleSave()">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Dữ liệu thống kê: Basic=6, Silver=5, Gold=4
-    new Chart(document.getElementById('chart5'), {
-        type: 'doughnut',
-        data: {
-            labels: ['Basic', 'Silver', 'Gold', 'Diamond'],
-            datasets: [{ 
-                data: [6, 5, 4, 0], 
-                backgroundColor: ['#6c757d', '#17a2b8', '#ffc107', '#dc3545'],
-                borderWidth: 0
-            }]
-        },
-        options: { 
-            plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 10 } } } },
-            cutout: '70%'
+    const SB_URL = 'https://ucqgjbrbmjyjmtmoaofm.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjcWdqYnJibWp5am10bW9hb2ZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1OTA3ODMsImV4cCI6MjA5MDE2Njc4M30.735IMZu0cuvzGH64lOLaBaFDHVROQUuX_itf6uH-IGM';
+    const _supabase = supabase.createClient(SB_URL, SB_KEY);
+
+    let activeTable = 'member';
+    let currentData = [];
+    let sortCol = '';
+    let sortDir = 1; // Mặc định 1 là tăng dần
+    let currentId = null;
+    const crudModal = new bootstrap.Modal(document.getElementById('crudModal'));
+
+    const tableConfig = {
+        member: { pk: 'membership_id', cols: ['name', 'gender', 'email', 'phone_number', 'type_id', 'account_id'] },
+        trainer: { pk: 'trainer_id', cols: ['name', 'gender', 'phone_number', 'email', 'account_id'] },
+        account: { pk: 'account_id', cols: ['username', 'password'] },
+        payment: { pk: 'payment_id', cols: ['amount', 'account_id'] },
+        membership_type: { pk: 'type_id', cols: ['name', 'description', 'membership_fee'] },
+        work_out: { pk: 'work_out_id', cols: ['name', 'description'] },
+        work_out_plan: { pk: 'plan_id', cols: ['work_out_date', 'trainer_id', 'membership_id', 'work_out_id'] }
+    };
+
+    // --- LẤY DỮ LIỆU VÀ MẶC ĐỊNH SẮP XẾP TĂNG DẦN THEO ID ---
+    async function fetchData() {
+        const conf = tableConfig[activeTable];
+        sortCol = conf.pk;
+        sortDir = 1; // Thiết lập mặc định tăng dần
+
+        const { data, error } = await _supabase.from(activeTable).select('*').order(conf.pk, { ascending: true });
+        if (error) return;
+        currentData = data;
+        renderHeader();
+        renderTableBody(currentData);
+    }
+
+    function renderHeader() {
+        const conf = tableConfig[activeTable];
+        const allDisplayCols = [conf.pk, ...conf.cols];
+        const headerHtml = allDisplayCols.map(c => {
+            const isActive = sortCol === c;
+            const icon = isActive ? (sortDir === 1 ? 'bi-sort-up' : 'bi-sort-down') : 'bi-arrow-down-up';
+            return `<th class="sortable py-3 ${isActive ? 'active-sort' : ''}" onclick="handleSort('${c}')">
+                        ${c.replace('_',' ').toUpperCase()} <i class="bi ${icon} ms-1 small"></i>
+                    </th>`;
+        }).join('') + '<th>ACTION</th>';
+        document.getElementById('tableHead').innerHTML = `<tr>${headerHtml}</tr>`;
+    }
+
+    function renderTableBody(list) {
+        const conf = tableConfig[activeTable];
+        const allDisplayCols = [conf.pk, ...conf.cols];
+        document.getElementById('tableBody').innerHTML = list.map(row => `
+            <tr>
+                ${allDisplayCols.map(c => `<td>${row[c] || '-'}</td>`).join('')}
+                <td class="text-nowrap">
+                    <button class="btn btn-sm btn-outline-primary border-0" onclick='openEditModal(${JSON.stringify(row)})'><i class="bi bi-pencil-square"></i></button>
+                    <button class="btn btn-sm btn-outline-danger border-0" onclick="handleDelete(${row[conf.pk]})"><i class="bi bi-trash3"></i></button>
+                </td>
+            </tr>`).join('');
+    }
+
+    function handleSort(col) {
+        sortDir = (sortCol === col) ? sortDir * -1 : 1;
+        sortCol = col;
+        currentData.sort((a, b) => {
+            let v1 = a[col] || '', v2 = b[col] || '';
+            if (!isNaN(v1) && !isNaN(v2)) { v1 = parseFloat(v1); v2 = parseFloat(v2); }
+            return v1 > v2 ? sortDir : (v1 < v2 ? -sortDir : 0);
+        });
+        renderHeader(); renderTableBody(currentData);
+    }
+
+    // --- CRUD LOGIC ---
+    function renderInputs(data = {}) {
+        const conf = tableConfig[activeTable];
+        let html = '';
+        if (currentId) {
+            html += `<div class="mb-3"><label class="small fw-bold text-danger">ID (KHÔNG ĐƯỢC SỬA)</label>
+                     <input type="text" class="form-control bg-light border-0" value="${data[conf.pk]}" readonly disabled></div>`;
         }
-    });
+        conf.cols.forEach(col => {
+            if (activeTable === 'trainer' && col === 'account_id') return;
+            const val = data[col] || '';
+            if (col === 'gender') {
+                html += `<div class="mb-3"><label class="form-label">Giới tính</label>
+                         <select id="inp-${col}" class="form-select border-0 bg-light shadow-sm">
+                         <option value="Nam" ${val==='Nam'?'selected':''}>Nam</option>
+                         <option value="Nữ" ${val==='Nữ'?'selected':''}>Nữ</option></select></div>`;
+            } else {
+                html += `<div class="mb-3"><label class="form-label text-capitalize">${col.replace('_',' ')}</label>
+                         <input type="${col==='email'?'email':'text'}" id="inp-${col}" class="form-control border-0 bg-light shadow-sm" value="${val}"></div>`;
+            }
+        });
+        document.getElementById('modalInputs').innerHTML = html;
+    }
+
+    async function handleSave() {
+        const conf = tableConfig[activeTable];
+        const payload = {};
+        conf.cols.forEach(c => { const el = document.getElementById(`inp-${c}`); if (el) payload[c] = el.value; });
+        if (currentId) await _supabase.from(activeTable).update(payload).eq(conf.pk, currentId);
+        else await _supabase.from(activeTable).insert([payload]);
+        crudModal.hide(); fetchData();
+    }
+
+    async function handleDelete(id) {
+        if (confirm("Xóa bản ghi?")) { await _supabase.from(activeTable).delete().eq(tableConfig[activeTable].pk, id); fetchData(); }
+    }
+
+    // --- 6 QUERIES ENGINE ---
+    async function runReports() {
+        // Q1
+        const { data: q1 } = await _supabase.from('member').select('name, account(username), membership_type(name)');
+        document.getElementById('q1-res').innerHTML = `<table class="table table-sm"><tr><th>Hội viên</th><th>Username</th><th>Gói</th></tr>` + 
+            q1.map(r => `<tr><td>${r.name}</td><td>${r.account?.username}</td><td><span class="badge bg-danger">${r.membership_type?.name}</span></td></tr>`).join('') + `</table>`;
+
+        // Q2 & Q3
+        const { data: q23 } = await _supabase.from('payment').select('*').order('date', {ascending: false});
+        document.getElementById('q2-res').innerHTML = `<table class="table table-sm"><tr><th>Mã GD</th><th>Số tiền</th><th>Ngày</th></tr>` + 
+            q23.slice(0,5).map(r => `<tr><td>#${r.payment_id}</td><td>${r.amount.toLocaleString()}đ</td><td>${new Date(r.date).toLocaleDateString()}</td></tr>`).join('') + `</table>`;
+        const totalRich = q23.reduce((acc, curr) => {
+            acc[curr.account_id] = (acc[curr.account_id] || 0) + curr.amount;
+            return acc;
+        }, {});
+        const richCount = Object.values(totalRich).filter(v => v > 1000000).length;
+        document.getElementById('q3-res').innerText = richCount + " Tài khoản";
+
+        // Q4
+        const { data: q4 } = await _supabase.from('work_out_plan').select('work_out_date, member(name), trainer(name), work_out(name)');
+        document.getElementById('q4-res').innerHTML = `<table class="table table-sm table-striped"><thead><tr><th>Hội viên</th><th>HLV</th><th>Bài tập</th><th>Ngày</th></tr></thead><tbody>` + 
+            q4.map(r => `<tr><td>${r.member?.name}</td><td>${r.trainer?.name}</td><td>${r.work_out?.name}</td><td>${new Date(r.work_out_date).toLocaleDateString()}</td></tr>`).join('') + `</tbody></table>`;
+
+        // Q5
+        const { data: q5 } = await _supabase.from('member').select('type_id');
+        const counts = [0,0,0,0]; q5.forEach(m => { if(m.type_id <= 4) counts[m.type_id-1]++; });
+        new Chart(document.getElementById('chartQ5'), {
+            type: 'bar', data: { labels: ['Basic', 'Silver', 'Gold', 'Diamond'], datasets: [{ data: counts, backgroundColor: '#ce1212' }] },
+            options: { plugins: { legend: { display: false } } }
+        });
+
+        // Q6
+        const { data: planData } = await _supabase.from('work_out_plan').select('trainer(name)');
+        const tCounts = planData.reduce((acc, curr) => {
+            const name = curr.trainer?.name || 'Unknown';
+            acc[name] = (acc[name] || 0) + 1;
+            return acc;
+        }, {});
+        const topTrainer = Object.keys(tCounts).reduce((a, b) => tCounts[a] > tCounts[b] ? a : b);
+        document.getElementById('q6-res').innerText = topTrainer;
+    }
+
+    function switchTable(name, el) {
+        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+        if (name === 'reports') {
+            document.getElementById('crud-section').style.display = 'none';
+            document.getElementById('reports-section').style.display = 'block';
+            runReports();
+        } else {
+            document.getElementById('crud-section').style.display = 'block';
+            document.getElementById('reports-section').style.display = 'none';
+            activeTable = name; fetchData();
+            document.getElementById('tableTitle').innerText = `Bảng: ${name.replace('_',' ')}`;
+        }
+    }
+
+    function openCreateModal() { currentId = null; renderInputs(); crudModal.show(); }
+    function openEditModal(row) { currentId = row[tableConfig[activeTable].pk]; renderInputs(row); crudModal.show(); }
+
+    window.onload = fetchData;
 </script>
 </body>
 </html>
