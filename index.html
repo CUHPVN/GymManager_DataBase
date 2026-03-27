@@ -19,6 +19,8 @@
         .card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .table-container { height: 65vh; overflow-y: auto; }
         .btn-ptit { background: var(--ptit-red); color: white; border: none; font-weight: 600; }
+        .btn-reset { border: 1px solid #ced4da; background: white; color: #6c757d; font-weight: 500; }
+        .btn-reset:hover { background: #f8f9fa; color: var(--ptit-red); border-color: var(--ptit-red); }
         th.sortable { cursor: pointer; transition: 0.2s; white-space: nowrap; background: #f8f9fa; }
         th.sortable:hover { background: #eee !important; color: var(--ptit-red); }
         .active-sort { color: var(--ptit-red); text-decoration: underline; }
@@ -38,7 +40,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-2 p-0 sidebar shadow-sm">
-            <div class="list-group list-group-flush">
+            <div class="list-group list-group-flush" id="tableMenu">
                 <div class="p-3 fw-bold text-muted small bg-light text-uppercase">Quản lý bảng</div>
                 <a class="nav-link active" onclick="switchTable('member', this)"><i class="bi bi-people"></i> Hội viên</a>
                 <a class="nav-link" onclick="switchTable('trainer', this)"><i class="bi bi-person-badge"></i> Huấn luyện viên</a>
@@ -57,7 +59,10 @@
                 <div class="card shadow-sm">
                     <div class="card-header d-flex justify-content-between align-items-center bg-white py-3">
                         <h5 class="mb-0 fw-bold text-uppercase" id="tableTitle">Bảng: Hội viên</h5>
-                        <button class="btn btn-ptit btn-sm" onclick="openCreateModal()"><i class="bi bi-plus-circle"></i> Thêm mới</button>
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-reset btn-sm me-2" onclick="refreshCurrentView()"><i class="bi bi-arrow-clockwise"></i> Làm mới</button>
+                            <button class="btn btn-ptit btn-sm shadow-sm" onclick="openCreateModal()"><i class="bi bi-plus-circle"></i> Thêm mới</button>
+                        </div>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-container">
@@ -71,10 +76,13 @@
             </div>
 
             <div id="reports-section" style="display: none;">
-                <h4 class="fw-bold mb-4 text-uppercase text-danger"><i class="bi bi-clipboard-data"></i> Báo cáo thống kê (6 Queries)</h4>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold mb-0 text-uppercase text-danger"><i class="bi bi-clipboard-data"></i> Báo cáo thống kê (6 Queries)</h4>
+                    <button class="btn btn-reset btn-sm" onclick="runReports()"><i class="bi bi-arrow-clockwise"></i> Cập nhật báo cáo</button>
+                </div>
                 <div class="row g-3">
                     <div class="col-md-6"><div class="card query-card"><h6>Q1: Member & Package</h6><div id="q1-res" class="small mt-2"></div></div></div>
-                    <div class="col-md-6"><div class="card query-card"><h6>Q2: Nhật ký thanh toán (Recent)</h6><div id="q2-res" class="small mt-2"></div></div></div>
+                    <div class="col-md-6"><div class="card query-card"><h6>Q2: Nhật ký thanh toán (Gần nhất)</h6><div id="q2-res" class="small mt-2"></div></div></div>
                     <div class="col-md-4"><div class="card query-card text-center"><h6>Q3: Tài khoản chi trên 1M</h6><h3 id="q3-res" class="text-danger fw-bold mt-2">-</h3></div></div>
                     <div class="col-md-5"><div class="card query-card"><h6>Q5: Phân bổ Gói hội viên</h6><canvas id="chartQ5" height="150"></canvas></div></div>
                     <div class="col-md-3">
@@ -84,7 +92,7 @@
                             <h4 id="q6-res" class="text-warning fw-bold">-</h4>
                         </div>
                     </div>
-                    <div class="col-12"><div class="card query-card"><h6>Q4: Chi tiết Lịch tập (Join Member, Trainer, Workout)</h6><div id="q4-res" class="small table-responsive mt-2"></div></div></div>
+                    <div class="col-12"><div class="card query-card"><h6>Q4: Chi tiết Lịch tập (Inner Join)</h6><div id="q4-res" class="small table-responsive mt-2"></div></div></div>
                 </div>
             </div>
         </div>
@@ -100,8 +108,8 @@
             </div>
             <div class="modal-body p-4" id="modalInputs"></div>
             <div class="modal-footer bg-light border-0">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <button type="button" class="btn btn-ptit" onclick="handleSave()">Lưu thay đổi</button>
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-ptit px-4" onclick="handleSave()">Lưu thay đổi</button>
             </div>
         </div>
     </div>
@@ -116,7 +124,7 @@
     let activeTable = 'member';
     let currentData = [];
     let sortCol = '';
-    let sortDir = 1; // Mặc định 1 là tăng dần
+    let sortDir = 1; 
     let currentId = null;
     const crudModal = new bootstrap.Modal(document.getElementById('crudModal'));
 
@@ -130,11 +138,19 @@
         work_out_plan: { pk: 'plan_id', cols: ['work_out_date', 'trainer_id', 'membership_id', 'work_out_id'] }
     };
 
-    // --- LẤY DỮ LIỆU VÀ MẶC ĐỊNH SẮP XẾP TĂNG DẦN THEO ID ---
+    // --- HÀM LÀM MỚI TỔNG HỢP ---
+    function refreshCurrentView() {
+        if (activeTable === 'reports') {
+            runReports();
+        } else {
+            fetchData();
+        }
+    }
+
     async function fetchData() {
         const conf = tableConfig[activeTable];
         sortCol = conf.pk;
-        sortDir = 1; // Thiết lập mặc định tăng dần
+        sortDir = 1; // Mặc định tăng dần
 
         const { data, error } = await _supabase.from(activeTable).select('*').order(conf.pk, { ascending: true });
         if (error) return;
@@ -180,7 +196,7 @@
         renderHeader(); renderTableBody(currentData);
     }
 
-    // --- CRUD LOGIC ---
+    // --- CRUD ---
     function renderInputs(data = {}) {
         const conf = tableConfig[activeTable];
         let html = '';
@@ -192,12 +208,12 @@
             if (activeTable === 'trainer' && col === 'account_id') return;
             const val = data[col] || '';
             if (col === 'gender') {
-                html += `<div class="mb-3"><label class="form-label">Giới tính</label>
+                html += `<div class="mb-3"><label class="form-label fw-bold">Giới tính</label>
                          <select id="inp-${col}" class="form-select border-0 bg-light shadow-sm">
                          <option value="Nam" ${val==='Nam'?'selected':''}>Nam</option>
                          <option value="Nữ" ${val==='Nữ'?'selected':''}>Nữ</option></select></div>`;
             } else {
-                html += `<div class="mb-3"><label class="form-label text-capitalize">${col.replace('_',' ')}</label>
+                html += `<div class="mb-3"><label class="form-label text-capitalize fw-bold">${col.replace('_',' ')}</label>
                          <input type="${col==='email'?'email':'text'}" id="inp-${col}" class="form-control border-0 bg-light shadow-sm" value="${val}"></div>`;
             }
         });
@@ -214,33 +230,27 @@
     }
 
     async function handleDelete(id) {
-        if (confirm("Xóa bản ghi?")) { await _supabase.from(activeTable).delete().eq(tableConfig[activeTable].pk, id); fetchData(); }
+        if (confirm("Xác nhận xóa bản ghi?")) { await _supabase.from(activeTable).delete().eq(tableConfig[activeTable].pk, id); fetchData(); }
     }
 
-    // --- 6 QUERIES ENGINE ---
+    // --- 6 QUERIES ---
     async function runReports() {
-        // Q1
         const { data: q1 } = await _supabase.from('member').select('name, account(username), membership_type(name)');
         document.getElementById('q1-res').innerHTML = `<table class="table table-sm"><tr><th>Hội viên</th><th>Username</th><th>Gói</th></tr>` + 
             q1.map(r => `<tr><td>${r.name}</td><td>${r.account?.username}</td><td><span class="badge bg-danger">${r.membership_type?.name}</span></td></tr>`).join('') + `</table>`;
 
-        // Q2 & Q3
         const { data: q23 } = await _supabase.from('payment').select('*').order('date', {ascending: false});
         document.getElementById('q2-res').innerHTML = `<table class="table table-sm"><tr><th>Mã GD</th><th>Số tiền</th><th>Ngày</th></tr>` + 
-            q23.slice(0,5).map(r => `<tr><td>#${r.payment_id}</td><td>${r.amount.toLocaleString()}đ</td><td>${new Date(r.date).toLocaleDateString()}</td></tr>`).join('') + `</table>`;
-        const totalRich = q23.reduce((acc, curr) => {
-            acc[curr.account_id] = (acc[curr.account_id] || 0) + curr.amount;
-            return acc;
-        }, {});
+            q23.slice(0,10).map(r => `<tr><td>#${r.payment_id}</td><td>${r.amount.toLocaleString()}đ</td><td>${new Date(r.date).toLocaleDateString()}</td></tr>`).join('') + `</table>`;
+        
+        const totalRich = q23.reduce((acc, curr) => { acc[curr.account_id] = (acc[curr.account_id] || 0) + curr.amount; return acc; }, {});
         const richCount = Object.values(totalRich).filter(v => v > 1000000).length;
         document.getElementById('q3-res').innerText = richCount + " Tài khoản";
 
-        // Q4
         const { data: q4 } = await _supabase.from('work_out_plan').select('work_out_date, member(name), trainer(name), work_out(name)');
         document.getElementById('q4-res').innerHTML = `<table class="table table-sm table-striped"><thead><tr><th>Hội viên</th><th>HLV</th><th>Bài tập</th><th>Ngày</th></tr></thead><tbody>` + 
             q4.map(r => `<tr><td>${r.member?.name}</td><td>${r.trainer?.name}</td><td>${r.work_out?.name}</td><td>${new Date(r.work_out_date).toLocaleDateString()}</td></tr>`).join('') + `</tbody></table>`;
 
-        // Q5
         const { data: q5 } = await _supabase.from('member').select('type_id');
         const counts = [0,0,0,0]; q5.forEach(m => { if(m.type_id <= 4) counts[m.type_id-1]++; });
         new Chart(document.getElementById('chartQ5'), {
@@ -248,13 +258,8 @@
             options: { plugins: { legend: { display: false } } }
         });
 
-        // Q6
         const { data: planData } = await _supabase.from('work_out_plan').select('trainer(name)');
-        const tCounts = planData.reduce((acc, curr) => {
-            const name = curr.trainer?.name || 'Unknown';
-            acc[name] = (acc[name] || 0) + 1;
-            return acc;
-        }, {});
+        const tCounts = planData.reduce((acc, curr) => { const name = curr.trainer?.name || 'Unknown'; acc[name] = (acc[name] || 0) + 1; return acc; }, {});
         const topTrainer = Object.keys(tCounts).reduce((a, b) => tCounts[a] > tCounts[b] ? a : b);
         document.getElementById('q6-res').innerText = topTrainer;
     }
